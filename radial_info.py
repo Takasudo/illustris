@@ -75,6 +75,8 @@ bh_z = npz_bh['bh_z']
 
 bh_acc = npz_bh['bh_Mdot']
 
+### Below : not checked yet
+
 # (6) properties within radius R
 
 R_bins = 20
@@ -133,69 +135,3 @@ eta_g = 1
 
 Dbohm_PeV_within_shell_from_mag_strength = eta_g * 108. * 3.086e18 * (1.e15/1.e17) * c / 3.0 / (avg_gas_mag_strength_within_shell * 1.e6)
 Dbohm_PeV_within_shell_from_turb_B = eta_g * 108. * 3.086e18 * (1.e15/1.e17) * c / 3.0 / (avg_gas_turb_B_within_shell * 1.e6)
-
-# (10) plot
-
-print(radius_list)
-print(mean_radius)
-
-import matplotlib.pyplot as plt
-
-fig = plt.figure(figsize=(10,13))
-
-plt.subplot(321)
-#plt.title("Timescale (within shell)")
-plt.loglog(mean_radius,T_pp_within_shell,label="PP",color="black") 
-plt.legend()
-plt.xlabel("Radius [ckpc/h]")
-plt.ylabel("Timescale [yr]")
-plt.ylim(1.e11,1.e13)
-
-plt.subplot(322)
-#plt.title("Sum of Physical Quantities (within shell)")
-plt.loglog(mean_radius,sum_in_shell_gas_sfr/total_in_shell_volume,label="SFR")
-#plt.loglog(radius_list,sum_of_gas_sfr_within_R,label="SFR (cum)",ls=':')
-plt.legend()
-plt.xlabel("Radius [ckpc/h]")
-plt.ylabel("SFR [$M_\odot$/yr]")
-#plt.ylim(1.0,1.e5)
-
-plt.subplot(323)
-#plt.title("Avg of Physical Quantities (within shell) : X/N")
-plt.loglog(mean_radius,avg_gas_mag_strength_within_shell,label="B")
-plt.loglog(mean_radius,avg_gas_turb_B_within_shell,label="turb B")
-plt.legend()
-plt.xlabel("Radius [ckpc/h]")
-plt.ylabel("Magnetic Field Strength [G]")
-plt.ylim(1.e-8,1.e-4)
-
-plt.subplot(324)
-#plt.title("Avg of Physical Quantities (within shell) : X/V")
-plt.loglog(mean_radius,avg_gas_num_density_within_shell,label="$n_{gas}$")
-plt.legend()
-plt.xlabel("Radius [ckpc/h]")
-plt.ylabel("Gas Number Density [cm$^{-3}$]")
-plt.ylim(1.e-6,5.e-2)
-
-plt.subplot(325)
-plt.loglog(mean_radius,Dbohm_PeV_within_shell_from_mag_strength,label="Bohm (B, PeV)")
-plt.loglog(mean_radius,Dbohm_PeV_within_shell_from_turb_B,label="Bohm (turb B, PeV)")
-plt.legend()
-plt.xlabel("Radius [ckpc/h]")
-plt.ylabel("Diffusion Coefficient [cm$^{2}$/s]")
-plt.ylim(1.e27,5.e30)
-
-plt.savefig("tmp_illistris_"+str(snap)+".pdf")
-
-fig = plt.figure(figsize=(5,5))
-
-plt.subplot(311)
-plt.hist(gas_x, weights=gas_sfr, log=True)
-plt.subplot(312)
-plt.hist(gas_y, weights=gas_sfr, log=True)
-plt.subplot(313)
-plt.hist(gas_z, weights=gas_sfr, log=True)
-
-plt.savefig("hist.pdf")
-
-print(center)
