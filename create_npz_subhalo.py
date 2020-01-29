@@ -1,44 +1,29 @@
-# --- create_subhalo_npz.py :
-# (1) read protocluster subhalo data from illustris simulation
-# (2) define protocluster membership radius (d_N)
-# (3) save all data to "npzdata_protocluster_subhalo" file
+# create_npz_halo.py
+# + create npz file for subhalos inside a protocluster (subhalo_snap...npz)
+# + create npz file for propertoes of the protocluster (npzdata_protocluster_subhalo_snap...npz)
 
 from math import *
 import numpy as np
 import illustris_python as il
 
-import sys
-args = sys.argv
+# basic data
+
+snap = 33
+redshift = 2.
+z0id = 0
+calclabel = 'test'
+
+basePath="/Users/takasudo/illustris/TNG300-3/output"
 
 flag_gal = 0 # [0: from snapshot, 1: from npz file]
-calclabel = args[4]
 
-snap = int(args[1])
-redshift = float(args[2])
-# 99 : z=0
-# 33 : z=2
-# 50 : z=1
-# 67 : z=0.5
-# 91 : z=0.1
-# 98 : z=0.01
-
-z0id = int(args[3])
-# id = 0 : most massive at z=0
-
-if snap==33 or snap==34:
-    basePath="/Users/taka/Dropbox/works/proto/TNG300-3/output"
-else:
-    basePath="/Users/taka/Desktop/TNG300-3/output"
-
-# Cosmology
+# parameter
 
 hubble = 0.7
 
-# (1) set subhalo data
+# (1) load all subhalos that belong to a protocluster
 
-# (1a) load data
-
-if (flag_gal == 0): # from snapshot
+if (flag_gal == 0): # load from snapshot and save
     tree = il.sublink.loadTree(basePath,99,z0id,fields=['SubhaloPos','SnapNum','SubhaloMass','SubhaloSFR','SubhaloVmaxRad','SubhaloBHMdot'],onlyMPB=False)
     #--- select subhalos with tree['SnapNum']==33 (z=2)"
     subhalo_pos = []
@@ -61,7 +46,7 @@ if (flag_gal == 0): # from snapshot
              subhalo_mass = subhalo_mass,
              subhalo_size = subhalo_size,
              subhalo_bh = subhalo_bh)    
-else: # from npz file
+else: # load from npz file
     npz = np.load('subhalo_snap'+str(snap)+"_z0id"+str(z0id)+"_"+str(calclabel)+".npz")
     subhalo_pos = npz['subhalo_pos']
     subhalo_sfr = npz['subhalo_sfr']
@@ -69,17 +54,17 @@ else: # from npz file
     subhalo_size = npz['subhalo_size']
     subhalo_bh = npz['subhalo_bh']
 
-# (1b) set np arrays
+# (2) properties of subhalos within different radii
+
+# (2a) set np arrays
 
 Nhalo = len(subhalo_mass)     # total number of subhalos
 mass = np.array(subhalo_mass) # array of subhalo mass
 pos_x = np.array([row[0] for row in subhalo_pos]) # x of subhalos
 pos_y = np.array([row[1] for row in subhalo_pos]) # y of subhalos
-pos_z = np.array([row[2] for row in subhalo_pos]) # z of subhalos
+pos_z = np.array([row[2] for row in subhalo_pos]) # z of subhalos    
 
-# (2) properties of subhalos within different radii
-
-# (2a) define center and radius (d20, d50, d80, d100)
+# (2b) define center and radius (d20, d50, d80, d100)
 
 center = [sum(pos_x*mass)/sum(subhalo_mass), sum(pos_y*mass)/sum(subhalo_mass), sum(pos_z*mass)/sum(subhalo_mass)] # Center of Mass for all subhalos
 
