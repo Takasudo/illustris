@@ -75,13 +75,12 @@ bh_z = npz_bh['bh_z']
 
 bh_acc = npz_bh['bh_Mdot']
 
-### Below : not checked yet
-
-# (6) properties within radius R
+# (6) properties within radius R (sphere)
 
 R_bins = 20
+
 radius_list = np.logspace(log10(gas_distance_min),log10(gas_distance_max),R_bins)
-volume_within_R = 4.0 * pi * (radius_list*length_kpc*kpc_to_cm)**3.0 / 3.0 # [cm^3]
+volume_within_R = 4.0 * pi * (radius_list*length_kpc*kpc_to_cm)**3.0 / 3.0 # V1 : volume of sphere, [cm^-3]
 
 sum_of_gas_num_within_R = np.zeros(R_bins)
 sum_of_gas_mag_strength_within_R = np.zeros(R_bins)
@@ -102,15 +101,15 @@ for r in range(R_bins):
     sum_of_gas_turb_B_within_R[r] = sum(gas_turb_B_within_R)
     sum_of_gas_sfr_within_R[r] = sum(gas_sfr_within_R)
     # number of simulated gas particles : N(<R) 
-    num_of_sim_particle_within_R[r] = len(gas_num_within_R)
+    num_of_sim_particle_within_R[r] = len(gas_num_within_R) # N1 : gas particle num within the shell
 
-# (7) take diff 
+# (7) properties within radius R - R + dR (shell)
 
 mean_radius = (radius_list[1:] + radius_list[0:-1])/2.0
 shell_width = np.diff(radius_list)
 
-total_in_shell_volume = np.diff(volume_within_R)                            # V : volume of spherical shell
-total_in_shell_sim_particle_num = np.diff(num_of_sim_particle_within_R)     # N : gas particle num within the shell
+total_in_shell_volume = np.diff(volume_within_R)                            # V2 : volume of the shell
+total_in_shell_sim_particle_num = np.diff(num_of_sim_particle_within_R)     # N2 : gas particle num within the shell
 
 sum_in_shell_gas_num = np.diff(sum_of_gas_num_within_R)
 sum_in_shell_gas_mag_strength = np.diff(sum_of_gas_mag_strength_within_R)
@@ -118,20 +117,16 @@ sum_in_shell_gas_turb_B = np.diff(sum_of_gas_turb_B_within_R)
 sum_in_shell_gas_sfr = np.diff(sum_of_gas_sfr_within_R)
 
 # (8) avg value within the shell
+#### TEMPORARY ####
 
 avg_gas_num_density_within_shell = sum_in_shell_gas_num / total_in_shell_volume                      # X / V
 avg_gas_mag_strength_within_shell = sum_in_shell_gas_mag_strength / total_in_shell_sim_particle_num  # X / N 
 avg_gas_turb_B_within_shell = sum_in_shell_gas_turb_B / total_in_shell_sim_particle_num              # X / N
 
-# (9) physical quantities within the shell
-
-# interaction time
+# (9) calculate physical quantities within the shell
+#### TEMPORARY #### 
 
 T_pp_within_shell = (avg_gas_num_density_within_shell * sigma_pp * c)**(-1.0) / 3.15e7  # [yr]
 
-# escape
-
-eta_g = 1 
-
-Dbohm_PeV_within_shell_from_mag_strength = eta_g * 108. * 3.086e18 * (1.e15/1.e17) * c / 3.0 / (avg_gas_mag_strength_within_shell * 1.e6)
-Dbohm_PeV_within_shell_from_turb_B = eta_g * 108. * 3.086e18 * (1.e15/1.e17) * c / 3.0 / (avg_gas_turb_B_within_shell * 1.e6)
+Dbohm_PeV_within_shell_from_mag_strength = 1.08 * 3.086e18 * c / 3.0 / (avg_gas_mag_strength_within_shell * 1.e6) # [cm^2/s]
+Dbohm_PeV_within_shell_from_turb_B = 1.08 * 3.086e18 * c / 3.0 / (avg_gas_turb_B_within_shell * 1.e6) # [cm^2/s]
